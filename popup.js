@@ -21,7 +21,7 @@ const mediaInput = document.querySelector('.js-media-input')
 // });
 mediaInput.addEventListener("change", (e) => {
   // console.log("change", e)
-  const preview = document.querySelector('img');
+  const preview = document.querySelector('.preview');
   const file = document.querySelector('input[type=file]').files[0];
   const reader = new FileReader();
 
