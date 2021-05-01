@@ -4,7 +4,7 @@ const usrProfilePicture = document.querySelector("nav ._6q-tv");
 
 const descriptionInput = document.querySelector('.js-description-input')
 const usernameInput = document.querySelector('.js-username-input')
-
+const mediaInput = document.querySelector('.js-media-input')
 
 // chrome.storage.sync.get("color", ({ color }) => {
 //   changeColor.style.backgroundColor = color;
@@ -19,18 +19,33 @@ const usernameInput = document.querySelector('.js-username-input')
 //     function: setPageBackgroundColor,
 //   });
 // });
+mediaInput.addEventListener("change", (e) => {
+  // console.log("change", e)
+  const preview = document.querySelector('img');
+  const file = document.querySelector('input[type=file]').files[0];
+  const reader = new FileReader();
 
+  reader.addEventListener("load", function () {
+    preview.src = reader.result;
+  }, false)
+
+  if (file) {
+    reader.readAsDataURL(file);
+  }
+})
 
 findPostBtn.addEventListener("click", async () => {
-  console.log("click")
+  // console.log("click")
   let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
   const description = descriptionInput.value
   const username = usernameInput.value
+  const media = mediaInput.value
   chrome.storage.sync.set({
-    postProporties: {
+    postProperties: {
       username: username,
-      description: description
+      description: description,
+      media: media
     }
   });
 
@@ -50,8 +65,18 @@ findPostBtn.addEventListener("click", async () => {
 
 function findPost() {
   let currentIdex = 0;
-  chrome.storage.sync.get("description", ({ result }) => {
-    post = document.querySelectorAll("article")[currentIdex]
-    console.log(result.description)
+  chrome.storage.sync.get("postProperties", (result) => {
+    const target = document.querySelectorAll("article")[currentIdex]
+    console.log(result)
+    // console.log("result.username:", result.username)
+    // console.log("result.postProperties.username:", result.postProperties.username)
+
+    const usernameTop = target.querySelector('.sqdOP.yWX7d._8A5w5.ZIAjV')
+    const usernameDown = target.querySelector('.FPmhX.notranslate.MBL3Z')
+    const description = target.querySelector('._8Pl3R')
+
+    usernameTop.textContent = result.postProperties.username
+    usernameDown.textContent = result.postProperties.username
+    description.textContent = result.postProperties.description
   });
 }
