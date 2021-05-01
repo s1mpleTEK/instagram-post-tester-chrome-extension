@@ -6,6 +6,8 @@ const descriptionInput = document.querySelector('.js-description-input')
 const usernameInput = document.querySelector('.js-username-input')
 const mediaInput = document.querySelector('.js-media-input')
 
+let imgBase64 = null
+
 // chrome.storage.sync.get("color", ({ color }) => {
 //   changeColor.style.backgroundColor = color;
 // });
@@ -26,6 +28,7 @@ mediaInput.addEventListener("change", (e) => {
   const reader = new FileReader();
 
   reader.addEventListener("load", function () {
+    imgBase64 = reader.result;
     preview.src = reader.result;
   }, false)
 
@@ -37,17 +40,28 @@ mediaInput.addEventListener("change", (e) => {
 findPostBtn.addEventListener("click", async () => {
   // console.log("click")
   let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (tab === undefined || !tab.url.startsWith('https://www.instagram.com/')) {
+    // chrome.storage.local.set({errorMessage: 'You need to be on the Youtube homepage !'})
+    console.log("va sur insta chacal")
+    return
+  }
 
   const description = descriptionInput.value
   const username = usernameInput.value
-  const media = mediaInput.value
-  chrome.storage.sync.set({
-    postProperties: {
-      username: username,
-      description: description,
-      media: media
-    }
-  });
+
+  console.log(imgBase64)
+  try {
+
+    chrome.storage.sync.set({
+      postProperties: {
+        username: username,
+        description: description,
+        media: imgBase64,
+      }
+    });
+  } catch(e) {
+    console.log(e)
+  }
 
   chrome.scripting.executeScript({
     target: { tabId: tab.id },
@@ -68,15 +82,17 @@ function findPost() {
   chrome.storage.sync.get("postProperties", (result) => {
     const target = document.querySelectorAll("article")[currentIdex]
     console.log(result)
-    // console.log("result.username:", result.username)
-    // console.log("result.postProperties.username:", result.postProperties.username)
+    console.log("result.media:", result.media)
+    console.log("result.postProperties.media:", result.postProperties.media)
 
     const usernameTop = target.querySelector('.sqdOP.yWX7d._8A5w5.ZIAjV')
     const usernameDown = target.querySelector('.FPmhX.notranslate.MBL3Z')
     const description = target.querySelector('._8Pl3R')
+    const imgPost = target.querySelector('.FFVAD')
 
     usernameTop.textContent = result.postProperties.username
     usernameDown.textContent = result.postProperties.username
     description.textContent = result.postProperties.description
+    imgPost.src = result.postProperties.media
   });
 }
