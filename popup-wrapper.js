@@ -4,7 +4,7 @@ chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
     },
     (response) => {
         if (response) {
-            console.log(response);
+            // console.log(response);
         }
     });
     window.close();
